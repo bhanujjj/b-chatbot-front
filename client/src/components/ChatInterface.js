@@ -14,7 +14,6 @@ import {
   SpeedDialAction,
 } from '@mui/material';
 import CompareIcon from '@mui/icons-material/Compare';
-import FaceIcon from '@mui/icons-material/Face';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import axios from 'axios';
