@@ -1,0 +1,21 @@
+product_id,name,type,skin_type,quantity,price
+prod_001,Foaming Face Wash,face wash,combination,44,20.15
+prod_002,Moisturizing Shampoo,shampoo,normal,99,9.49
+prod_003,Soothing Body Wash,body wash,combination,56,19.36
+prod_004,Gentle Cleanser,face wash,acne-prone,23,27.89
+prod_005,Exfoliating Face Wash,face wash,acne-prone,45,21.64
+prod_006,Hydrating Body Wash,body wash,combination,63,29.39
+prod_007,Oil-Free Moisturizer,moisturizer,combination,26,20.72
+prod_008,Soothing Body Wash,body wash,combination,28,21.69
+prod_009,Charcoal Face Wash,face wash,combination,64,21.35
+prod_010,Exfoliating Body Wash,body wash,acne-prone,61,18.12
+prod_011,Niacinamide Serum,serum,sensitive,26,19.17
+prod_012,Foaming Face Wash,face wash,acne-prone,36,19.06
+prod_013,Vitamin C Serum,serum,acne-prone,36,28.2
+prod_014,Tea Tree Shampoo,shampoo,normal,26,26.99
+prod_015,Anti-Dandruff Shampoo,shampoo,normal,20,27.97
+prod_016,Rich Moisturizer,moisturizer,dry,73,21.77
+prod_017,Night Moisturizer,moisturizer,oily,51,21.91
+prod_018,Gentle Cleanser,face wash,normal,37,28.75
+prod_019,Exfoliating Face Wash,face wash,combination,74,14.23
+prod_020,Night Moisturizer,moisturizer,sensitive,51,23.85
