@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beauty Chatbot Widget Demo</title>
+</head>
+<body>
+    <h1>Beauty Chatbot Widget Demo</h1>
+    <p>This page demonstrates how to integrate the Beauty Chatbot widget into any website.</p>
+
+    <!-- Load the widget script -->
+    <script src="/widget.bundle.js"></script>
+
+    <!-- Initialize the widget -->
+    <script>
+        window.BeautyChatbot.init({
+            apiKey: 'YOUR_API_KEY',
+            apiUrl: 'http://your-api-url.com',
+            position: 'bottom-right',
+            theme: {
+                primaryColor: '#ff69b4',
+                fontFamily: 'Arial, sans-serif'
+            },
+            title: 'Beauty Advisor'
+        });
+    </script>
+</body>
+</html> 

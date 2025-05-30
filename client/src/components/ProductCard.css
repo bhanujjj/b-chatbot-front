@@ -1,0 +1,129 @@
+.products-section {
+  position: relative;
+  width: 100%;
+  padding: 20px;
+}
+
+.products-header {
+  background-color: #E5A4B3;
+  padding: 10px 20px;
+  border-radius: 25px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.products-header span {
+  font-size: 1.2em;
+  color: white;
+}
+
+.products-header .magnifier-icon {
+  color: white;
+}
+
+.product-card {
+  background-color: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.product-image {
+  background-color: #2A2A2A;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.product-image img {
+  max-width: 100%;
+  height: auto;
+  max-height: 300px;
+}
+
+.product-info {
+  padding: 20px;
+  text-align: left;
+}
+
+.product-name {
+  font-size: 1.5em;
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.product-description {
+  color: #666;
+  margin: 0 0 15px 0;
+  font-size: 1em;
+}
+
+.product-price {
+  font-size: 1.2em;
+  color: #333;
+  margin: 0;
+}
+
+.currency {
+  font-weight: bold;
+}
+
+.product-actions {
+  padding: 0 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.details-button,
+.order-button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.2s;
+}
+
+.details-button {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.order-button {
+  background-color: #E5A4B3;
+  color: white;
+}
+
+.navigation-arrows {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.nav-arrow {
+  background-color: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+} 
