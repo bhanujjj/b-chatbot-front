@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build": "cd client && npm install && npm run build",
-    "start": "cd client && npm start"
+    "start": "cd client && npm start",
+    "vercel-build": "cd client && npm install && npm run build"
   },
   "dependencies": {},
   "devDependencies": {}
