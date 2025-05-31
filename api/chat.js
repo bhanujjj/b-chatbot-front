@@ -52,7 +52,17 @@ module.exports = async (req, res) => {
 
   try {
     const { message, chatHistory } = req.body;
-    console.log('Received request:', { message, chatHistoryLength: chatHistory?.length });
+    
+    // Verify environment variables
+    if (!process.env.OPENROUTER_API_KEY || !process.env.OPENROUTER_API_URL) {
+      console.error('Missing environment variables:', {
+        hasApiKey: !!process.env.OPENROUTER_API_KEY,
+        hasApiUrl: !!process.env.OPENROUTER_API_URL
+      });
+      throw new Error('Missing OpenRouter configuration');
+    }
+
+    console.log('Environment check passed, making request to OpenRouter');
 
     // Format chat history
     const formattedHistory = Array.isArray(chatHistory) 
@@ -62,23 +72,26 @@ module.exports = async (req, res) => {
         }))
       : [];
 
-    // Make request to OpenRouter directly
-    const response = await axios.post(process.env.OPENROUTER_API_URL, {
-      model: "mistralai/mistral-7b-instruct",
-      messages: [
-        ...formattedHistory,
-        { role: 'user', content: message }
-      ],
-      temperature: 0.7,
-      max_tokens: 500
-    }, {
+    // Make request to OpenRouter
+    const openRouterResponse = await axios({
+      method: 'post',
+      url: 'https://openrouter.ai/api/v1/chat/completions',
       headers: {
         'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json'
+      },
+      data: {
+        model: "mistralai/mistral-7b-instruct",
+        messages: [
+          ...formattedHistory,
+          { role: 'user', content: message }
+        ],
+        temperature: 0.7,
+        max_tokens: 500
       }
     });
 
-    console.log('OpenRouter response received');
+    console.log('OpenRouter response received successfully');
 
     // Filter products based on message content
     let recommendedProducts = [];
@@ -87,19 +100,24 @@ module.exports = async (req, res) => {
     }
 
     res.status(200).json({
-      reply: response.data.choices[0].message.content,
+      reply: openRouterResponse.data.choices[0].message.content,
       recommendations: recommendedProducts
     });
   } catch (error) {
-    console.error('Chat API Error:', {
+    console.error('Detailed error information:', {
       message: error.message,
       response: error.response?.data,
-      status: error.response?.status
+      status: error.response?.status,
+      config: error.config,
+      envVars: {
+        hasApiKey: !!process.env.OPENROUTER_API_KEY,
+        hasApiUrl: !!process.env.OPENROUTER_API_URL
+      }
     });
     
     res.status(500).json({
       error: 'Failed to process chat request',
-      details: error.response?.data || error.message
+      details: error.message
     });
   }
 }; 
