@@ -1,4 +1,35 @@
 const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
+const csv = require('csv-parse/sync');
+
+// Load and parse products data
+const products = [
+  {
+    name: "Gentle Cleanser",
+    type: "face wash",
+    skin_type: "acne-prone",
+    price: 27.89,
+    image_url: "https://m.media-amazon.com/images/I/71p7dGjRK3L._SL1500_.jpg",
+    description: "A gentle cleanser perfect for acne-prone skin, helps control breakouts while maintaining skin's natural balance."
+  },
+  {
+    name: "Exfoliating Face Wash",
+    type: "face wash",
+    skin_type: "acne-prone",
+    price: 21.64,
+    image_url: "https://m.media-amazon.com/images/I/71cVhWylZ9L._SL1500_.jpg",
+    description: "An exfoliating face wash that helps remove dead skin cells and unclog pores, ideal for acne-prone skin."
+  },
+  {
+    name: "Foaming Face Wash",
+    type: "face wash",
+    skin_type: "acne-prone",
+    price: 19.06,
+    image_url: "https://m.media-amazon.com/images/I/61S6GUyMu5L._SL1500_.jpg",
+    description: "A foaming face wash that deeply cleanses while being gentle on sensitive, acne-prone skin."
+  }
+];
 
 module.exports = async (req, res) => {
   // Enable CORS
@@ -49,9 +80,15 @@ module.exports = async (req, res) => {
 
     console.log('OpenRouter response received');
 
+    // Filter products based on message content
+    let recommendedProducts = [];
+    if (message.toLowerCase().includes('acne') || message.toLowerCase().includes('face wash')) {
+      recommendedProducts = products.filter(p => p.type === 'face wash' && p.skin_type === 'acne-prone');
+    }
+
     res.status(200).json({
       reply: response.data.choices[0].message.content,
-      recommendations: []
+      recommendations: recommendedProducts
     });
   } catch (error) {
     console.error('Chat API Error:', {
