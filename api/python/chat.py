@@ -1,9 +1,7 @@
 from http.server import BaseHTTPRequestHandler
 import json
 import os
-from openai import OpenAI
-
-client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+import requests
 
 def chat_with_ai(message, chat_history):
     try:
@@ -19,15 +17,27 @@ def chat_with_ai(message, chat_history):
             "content": message
         })
 
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=messages,
-            temperature=0.7,
-            max_tokens=500
+        headers = {
+            "Authorization": f"Bearer {os.environ.get('OPENROUTER_API_KEY')}",
+            "Content-Type": "application/json"
+        }
+
+        payload = {
+            "model": "mistralai/mistral-7b-instruct",  # or your preferred model
+            "messages": messages,
+            "temperature": 0.7,
+            "max_tokens": 500
+        }
+
+        response = requests.post(
+            os.environ.get('OPENROUTER_API_URL'),
+            headers=headers,
+            json=payload
         )
+        response_data = response.json()
 
         return {
-            "reply": response.choices[0].message.content,
+            "reply": response_data['choices'][0]['message']['content'],
             "recommendations": []  # Add your recommendation logic here
         }
     except Exception as e:
