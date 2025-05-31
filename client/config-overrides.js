@@ -10,7 +10,10 @@ module.exports = function override(config, env) {
   // Modify output configuration
   config.output = {
     ...config.output,
-    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'build'),
+    filename: 'static/js/[name].bundle.js',
+    chunkFilename: 'static/js/[name].chunk.js',
+    publicPath: '/',
     library: 'BeautyChatbot',
     libraryTarget: 'umd',
     globalObject: 'this'
