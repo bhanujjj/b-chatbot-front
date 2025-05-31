@@ -107,6 +107,11 @@ const ChatInterface = () => {
       const response = await axios.post('/api/chat', {
         message: input,
         chatHistory: messages
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
       });
 
       if (response.data) {

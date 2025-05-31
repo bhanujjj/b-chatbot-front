@@ -4,8 +4,9 @@
   "outputDirectory": "client/build",
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "server/index.js"
+      "src": "/api/chat",
+      "methods": ["POST", "OPTIONS"],
+      "dest": "/api/chat.js"
     },
     {
       "src": "^/static/js/(.*)$",
