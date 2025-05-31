@@ -65,7 +65,7 @@ const ChatInterface = () => {
 
   const handleQuestionnaireComplete = async (answers) => {
     try {
-      const response = await axios.post('http://localhost:8000/api/create-routine', { answers });
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/create-routine`, { answers });
       setSkinRoutine(response.data.routine);
       setRoutineOpen(true);
     } catch (error) {
@@ -104,7 +104,7 @@ const ChatInterface = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:8000/api/chat', {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/chat`, {
         message: input,
         chatHistory: messages
       });
