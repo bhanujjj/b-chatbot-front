@@ -23,6 +23,14 @@ import SkincareQuestionnaire from './SkincareQuestionnaire';
 import SkincareRoutine from './SkincareRoutine';
 import SkinAnalysis from './SkinAnalysis';
 
+// Configure axios defaults
+const API_URL = process.env.NODE_ENV === 'production'
+  ? process.env.REACT_APP_API_URL || ''  // In production, use relative URLs
+  : process.env.REACT_APP_API_URL || 'http://localhost:4000';
+
+axios.defaults.baseURL = API_URL;
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+
 const actions = [
   { icon: <EventNoteIcon />, name: 'Create Routine', key: 'routine' },
   { icon: <PhotoCameraIcon />, name: 'Analyze Skin', key: 'analysis' },
@@ -95,10 +103,14 @@ const ChatInterface = () => {
     }
   };
 
-  const handleSendMessage = async () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
 
-    const userMessage = { role: 'user', content: input };
+    const userMessage = {
+      role: 'user',
+      content: input
+    };
+
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setLoading(true);
@@ -107,29 +119,24 @@ const ChatInterface = () => {
       const response = await axios.post('/api/chat', {
         message: input,
         chatHistory: messages
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
       });
 
       if (response.data) {
-        const assistantMessage = {
+        setMessages(prev => [...prev, {
           role: 'assistant',
           content: response.data.reply,
           recommendations: response.data.recommendations || []
-        };
-        setMessages(prev => [...prev, assistantMessage]);
+        }]);
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Chat error:', error);
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: 'Sorry, I encountered an error. Please try again.'
       }]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -224,11 +231,11 @@ const ChatInterface = () => {
             placeholder="Type your message..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
           />
           <Button
             variant="contained"
-            onClick={handleSendMessage}
+            onClick={handleSend}
             disabled={loading}
           >
             {loading ? <CircularProgress size={24} /> : 'Send'}

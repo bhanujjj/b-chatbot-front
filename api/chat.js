@@ -10,7 +10,7 @@ const products = [
     type: "face wash",
     skin_type: "acne-prone",
     price: 27.89,
-    image_url: "https://m.media-amazon.com/images/I/71p7dGjRK3L._SL1500_.jpg",
+    image_url: "/product-images/gentle-cleanser.jpg",
     description: "A gentle cleanser perfect for acne-prone skin, helps control breakouts while maintaining skin's natural balance."
   },
   {
@@ -18,7 +18,7 @@ const products = [
     type: "face wash",
     skin_type: "acne-prone",
     price: 21.64,
-    image_url: "https://m.media-amazon.com/images/I/71cVhWylZ9L._SL1500_.jpg",
+    image_url: "/product-images/exfoliating-face-wash.jpg",
     description: "An exfoliating face wash that helps remove dead skin cells and unclog pores, ideal for acne-prone skin."
   },
   {
@@ -26,93 +26,74 @@ const products = [
     type: "face wash",
     skin_type: "acne-prone",
     price: 19.06,
-    image_url: "https://m.media-amazon.com/images/I/61S6GUyMu5L._SL1500_.jpg",
+    image_url: "/product-images/foaming-face-wash.jpg",
     description: "A foaming face wash that deeply cleanses while being gentle on sensitive, acne-prone skin."
   }
 ];
 
 module.exports = async (req, res) => {
-  // Enable CORS
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
-
-  // Handle OPTIONS request
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+  // Enable CORS with proper origin
+  const allowedOrigins = [
+    'https://beauty-advisor-chatbot-e9h1.vercel.app',
+    'http://localhost:3000',
+    'http://localhost:3001'
+  ];
+  const origin = req.headers.origin;
+  
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
   }
+  
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 
-  // Only allow POST method
-  if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
 
   try {
-    const { message, chatHistory } = req.body;
+    const { message } = req.body;
     
-    // Verify environment variables
-    if (!process.env.OPENROUTER_API_KEY || !process.env.OPENROUTER_API_URL) {
-      console.error('Missing environment variables:', {
-        hasApiKey: !!process.env.OPENROUTER_API_KEY,
-        hasApiUrl: !!process.env.OPENROUTER_API_URL
-      });
-      throw new Error('Missing OpenRouter configuration');
-    }
-
-    console.log('Environment check passed, making request to OpenRouter');
-
-    // Format chat history
-    const formattedHistory = Array.isArray(chatHistory) 
-      ? chatHistory.map(msg => ({
-          role: msg.role || 'user',
-          content: msg.content || ''
-        }))
-      : [];
-
-    // Make request to OpenRouter
-    const openRouterResponse = await axios({
-      method: 'post',
-      url: 'https://openrouter.ai/api/v1/chat/completions',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      data: {
-        model: "mistralai/mistral-7b-instruct",
-        messages: [
-          ...formattedHistory,
-          { role: 'user', content: message }
-        ],
-        temperature: 0.7,
-        max_tokens: 500
-      }
-    });
-
-    console.log('OpenRouter response received successfully');
-
     // Filter products based on message content
     let recommendedProducts = [];
     if (message.toLowerCase().includes('acne') || message.toLowerCase().includes('face wash')) {
       recommendedProducts = products.filter(p => p.type === 'face wash' && p.skin_type === 'acne-prone');
     }
 
+    // If we have product recommendations, just return those without the chat response
+    if (recommendedProducts.length > 0) {
+      res.status(200).json({
+        reply: "Here are some recommended products for you:",
+        recommendations: recommendedProducts
+      });
+      return;
+    }
+
+    // If no product recommendations, proceed with normal chat
+    const openRouterResponse = await axios.post(OPENROUTER_URL, {
+      messages: [
+        { role: "system", content: "You are a helpful beauty advisor." },
+        { role: "user", content: message }
+      ],
+      model: "anthropic/claude-3-opus-20240229"
+    }, {
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'HTTP-Referer': `${req.headers.origin || 'http://localhost:3000'}`
+      }
+    });
+
     res.status(200).json({
       reply: openRouterResponse.data.choices[0].message.content,
-      recommendations: recommendedProducts
+      recommendations: []
     });
   } catch (error) {
     console.error('Detailed error information:', {
       message: error.message,
       response: error.response?.data,
       status: error.response?.status,
-      config: error.config,
-      envVars: {
-        hasApiKey: !!process.env.OPENROUTER_API_KEY,
-        hasApiUrl: !!process.env.OPENROUTER_API_URL
-      }
+      config: error.config
     });
     
     res.status(500).json({

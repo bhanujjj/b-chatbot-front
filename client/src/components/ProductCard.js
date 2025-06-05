@@ -15,24 +15,13 @@ import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 const ProductCard = ({ product, onCompareToggle, isCompared }) => {
   const [imageUrl, setImageUrl] = useState('');
   const [imageError, setImageError] = useState(false);
-  const placeholderImage = 'https://via.placeholder.com/200?text=Product+Image';
+  const placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y1ZjVmNSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiM2NjY2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Qcm9kdWN0IEltYWdlPC90ZXh0Pjwvc3ZnPg==';
   
   useEffect(() => {
     if (product?.image_url) {
-      // Check if the image_url is a complete base64 string
-      if (product.image_url.startsWith('data:image')) {
-        if (!product.image_url.includes('base64,') || product.image_url.length < 100) {
-          console.error('Invalid or truncated base64 string');
-          setImageUrl(placeholderImage);
-          setImageError(true);
-          return;
-        }
-        setImageUrl(product.image_url);
-        setImageError(false);
-      } else {
-        setImageUrl(product.image_url);
-        setImageError(false);
-      }
+      // For external URLs, use them directly
+      setImageUrl(product.image_url);
+      setImageError(false);
     } else {
       setImageUrl(placeholderImage);
       setImageError(true);
@@ -44,8 +33,8 @@ const ProductCard = ({ product, onCompareToggle, isCompared }) => {
     return null;
   }
 
-  const handleImageError = (error) => {
-    console.error('Image error in CardMedia:', error);
+  const handleImageError = () => {
+    console.error('Image failed to load:', product.image_url);
     setImageUrl(placeholderImage);
     setImageError(true);
   };
@@ -61,11 +50,9 @@ const ProductCard = ({ product, onCompareToggle, isCompared }) => {
       <CardMedia
         component="img"
         height="200"
-        image={imageError ? 'https://via.placeholder.com/200' : imageUrl}
+        image={imageError ? placeholderImage : imageUrl}
         alt={product.name}
         onError={handleImageError}
-        crossOrigin="anonymous"
-        referrerPolicy="no-referrer"
         loading="lazy"
         sx={{ 
           objectFit: 'contain',
