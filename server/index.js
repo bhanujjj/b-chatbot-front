@@ -2,119 +2,85 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
-const bodyParser = require('body-parser');
 const path = require('path');
-const fs = require('fs');
-
-const routineRoutes = require('./routes/routineRoutes');
-const analysisRoutes = require('./routes/analysisRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 4000;
+const PYTHON_API = process.env.PYTHON_API || 'https://beauty-chatbot-ai-p1fp.onrender.com';
 
-// Create uploads directory if it doesn't exist
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir);
-}
-
-// Configure CORS with more permissive settings
+// Configure CORS
 app.use(cors({
-  origin: '*',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range']
+  origin: process.env.NODE_ENV === 'production'
+    ? [process.env.VERCEL_URL, 'https://beauty-chatbot-frontend.vercel.app']
+    : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
+  credentials: true
 }));
 
-// Add headers for image requests
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Expose-Headers', 'Content-Range, X-Content-Range');
-  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
-  res.header('Cross-Origin-Embedder-Policy', 'require-corp');
-  res.header('Cross-Origin-Opener-Policy', 'same-origin');
-  
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  next();
+// Parse JSON bodies
+app.use(express.json());
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({
+    error: 'Internal server error',
+    message: err.message
+  });
 });
 
-app.use(bodyParser.json());
-app.use('/uploads', express.static('uploads'));
+// API Routes
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'middleware-ok' });
+});
 
-// Chat endpoint that uses Python AI service
+// Proxy requests to Python service
 app.post('/api/chat', async (req, res) => {
   try {
-    const { message, chatHistory } = req.body;
-    
-    console.log('Received request:', {
-      message,
-      chatHistoryLength: chatHistory?.length
-    });
-
-    // Format chat history to match Python service expectations
-    const formattedHistory = Array.isArray(chatHistory) 
-      ? chatHistory.map(msg => ({
-          role: msg.role || 'user',
-          content: msg.content || ''
-        }))
-      : [];
-
-    console.log('Calling Python service with:', {
-      message,
-      formattedHistoryLength: formattedHistory.length
-    });
-
-    // Call Python AI service with properly formatted request
-    const response = await axios.post('http://localhost:8002/chat', {
-      message: message || '',  // Ensure message is never undefined
-      chatHistory: formattedHistory.map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }))
-    });
-
-    console.log('Python service response:', {
-      hasReply: !!response.data.reply,
-      recommendationsCount: response.data.recommendations?.length,
-      recommendations: response.data.recommendations // Log full recommendations
-    });
-
-    if (!response.data || !response.data.reply) {
-      throw new Error('Invalid response from Python service');
-    }
-
-    // Log the exact data being sent to frontend
-    console.log('Sending to frontend:', {
-      recommendations: response.data.recommendations || []
-    });
-
-    res.json({ 
-      reply: response.data.reply,
-      recommendations: response.data.recommendations || []
-    });
+    const response = await axios.post(`${PYTHON_API}/chat`, req.body);
+    res.json(response.data);
   } catch (error) {
-    console.error('Chat API Error:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status
-    });
+    console.error('Error forwarding request to Python backend:', error);
     res.status(500).json({ 
-      error: 'Failed to process chat request',
-      details: error.response?.data || error.message
+      error: 'Failed to process request',
+      details: error.message 
     });
   }
 });
 
-// New routes
-app.use('/api', routineRoutes);
-app.use('/api', analysisRoutes);
+// Only serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/build')));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build/index.html'));
+  });
+}
 
-app.listen(PORT, () => {
+// Start server
+const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-}); 
+  console.log(`Health check: http://localhost:${PORT}/api/health`);
+  console.log(`Chat endpoint: http://localhost:${PORT}/api/chat`);
+});
+
+// Handle server errors
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`Port ${PORT} is already in use`);
+    process.exit(1);
+  } else {
+    console.error('Server error:', error);
+  }
+});
+
+// Handle process termination
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
+
+module.exports = app; 
