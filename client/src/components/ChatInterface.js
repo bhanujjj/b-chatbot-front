@@ -22,13 +22,10 @@ import CompareModal from './CompareModal';
 import SkincareQuestionnaire from './SkincareQuestionnaire';
 import SkincareRoutine from './SkincareRoutine';
 import SkinAnalysis from './SkinAnalysis';
+import config from '../config';
 
 // Configure axios defaults
-const API_URL = process.env.NODE_ENV === 'production'
-  ? process.env.REACT_APP_API_URL || ''  // In production, use relative URLs
-  : process.env.REACT_APP_API_URL || 'http://localhost:4000';
-
-axios.defaults.baseURL = API_URL;
+axios.defaults.baseURL = config.API_URL;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 const actions = [
@@ -116,7 +113,7 @@ const ChatInterface = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/chat', {
+      const response = await axios.post('/chat', {
         message: input,
         chatHistory: messages
       });
