@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Beauty Advisor Widget Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .demo-section {
+            margin: 40px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Beauty Advisor Widget Demo</h1>
+    
+    <div class="demo-section">
+        <h2>Default Configuration</h2>
+        <p>This is the widget with default settings. You should see a pink chat bubble in the bottom right corner.</p>
+    </div>
+
+    <div class="demo-section">
+        <h2>How to Use</h2>
+        <p>Add the following code to your website:</p>
+        <pre><code>
+&lt;!-- Required dependencies --&gt;
+&lt;script src="https://unpkg.com/react@17/umd/react.production.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"&gt;&lt;/script&gt;
+
+&lt;!-- Beauty Advisor Widget --&gt;
+&lt;script 
+    src="beauty-advisor-widget.js"
+    data-api-url="https://beauty-chatbot-ai-p1fp.onrender.com"
+    data-primary-color="#FF69B4"
+    data-position="bottom-right"
+    data-welcome-message="Hello! 👋 I'm your beauty advisor. How can I help you today?"
+    data-widget-title="Beauty Advisor"&gt;
+&lt;/script&gt;
+        </code></pre>
+    </div>
+
+    <!-- Required dependencies -->
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+
+    <!-- Beauty Advisor Widget -->
+    <script 
+        src="./beauty-advisor-widget.js"
+        data-api-url="https://beauty-chatbot-ai-p1fp.onrender.com"
+        data-primary-color="#FF69B4"
+        data-position="bottom-right"
+        data-welcome-message="Hello! 👋 I'm your beauty advisor. How can I help you today?"
+        data-widget-title="Beauty Advisor">
+    </script>
+</body>
+</html> 
