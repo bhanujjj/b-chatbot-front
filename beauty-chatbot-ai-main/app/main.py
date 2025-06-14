@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, PlainTextResponse
 from pydantic import BaseModel
 from typing import List, Optional, Dict
 import requests
@@ -10,35 +11,59 @@ import json
 # Load environment variables from .env file
 load_dotenv()
 
-app = FastAPI()
+# Initialize FastAPI app
+app = FastAPI(
+    title="Beauty Chatbot AI",
+    description="AI-powered beauty product recommendation system",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
 
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://localhost:3004", "http://localhost:4000", "https://beauty-advisor-chatbot-e9h1.vercel.app"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+@app.get("/")
+def read_root():
+    return {
+        "status": "online",
+        "message": "Beauty Chatbot AI Backend is running",
+        "version": "1.0.0",
+        "endpoints": {
+            "chat": "/chat",
+            "health": "/health",
+            "docs": "/docs"
+        }
+    }
+
+@app.get("/health")
+def health_check():
+    return {
+        "status": "healthy",
+        "api_key_configured": bool(OPENROUTER_API_KEY),
+        "environment": os.getenv("ENV", "production")
+    }
+
+@app.get("/favicon.ico")
+def favicon():
+    return PlainTextResponse("")
+
+@app.get("/apple-touch-icon.png")
+@app.get("/apple-touch-icon-precomposed.png")
+def apple_touch_icon():
+    return PlainTextResponse("")
+
 # Load OpenRouter API key from environment
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
 if not OPENROUTER_API_KEY:
     print("Warning: OPENROUTER_API_KEY not found in environment variables")
-else:
-    print(f"API Key found with length: {len(OPENROUTER_API_KEY)}")
-    print(f"API Key prefix: {OPENROUTER_API_KEY[:7]}...")  # Only show first 7 chars for security
-    if not OPENROUTER_API_KEY.startswith('sk-or-'):
-        print("Warning: API Key does not start with 'sk-or-' prefix")
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-
-# Get the referer from environment or use a default list
-ALLOWED_REFERERS = [
-    "http://localhost:3000",
-    "https://beauty-advisor-chatbot-e9h1.vercel.app",
-    "https://beauty-chatbot-ai-p1fp.onrender.com"
-]
-DEFAULT_REFERER = ALLOWED_REFERERS[1]  # Use production URL as default
 
 # Sample product data
 products = [
@@ -80,8 +105,6 @@ async def get_ai_response(message: str, chat_history: List[ChatMessage], product
     """Get AI response with product context"""
     try:
         print(f"API Key present: {'Yes' if OPENROUTER_API_KEY else 'No'}")
-        print(f"API Key starts with sk-or-: {OPENROUTER_API_KEY.startswith('sk-or-') if OPENROUTER_API_KEY else 'No key found'}")
-        print(f"API Key length: {len(OPENROUTER_API_KEY) if OPENROUTER_API_KEY else 'No key found'}")
         
         # Create system message with product context
         system_message = f"""You are a helpful beauty advisor. When recommending products, use this product information:
@@ -100,39 +123,31 @@ Keep responses concise and focused on the user's question. If recommending produ
         # Make request to OpenRouter with smaller model and token limit
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "HTTP-Referer": DEFAULT_REFERER,
+            "HTTP-Referer": "http://localhost:3000",
             "Content-Type": "application/json"
         }
         
-        print(f"Request headers: {json.dumps({k: v if k != 'Authorization' else '[REDACTED]' for k, v in headers.items()}, indent=2)}")
-        
         request_data = {
-            "model": "mistralai/mistral-7b-instruct",
+            "model": "mistralai/mistral-7b-instruct",  # Using smaller model
             "messages": messages,
-            "max_tokens": 250
+            "max_tokens": 250  # Increasing token limit for longer responses
         }
         
         print(f"Request data: {json.dumps(request_data, indent=2)}")
-        print(f"OpenRouter URL: {OPENROUTER_URL}")
         
         response = requests.post(
             OPENROUTER_URL,
             headers=headers,
-            json=request_data,
-            timeout=30  # Add timeout
+            json=request_data
         )
         
         print(f"Response status code: {response.status_code}")
-        print(f"Response headers: {dict(response.headers)}")
+        print(f"Response headers: {response.headers}")
         print(f"Response text: {response.text}")
         
-        if response.status_code != 200:
-            print(f"Error response from OpenRouter: {response.text}")
-            return f"I apologize, but I encountered an error: {response.text}"
-            
         response_data = response.json()
         
-        if "error" in response_data:
+        if response.status_code != 200 or "error" in response_data:
             error_msg = response_data.get("error", {}).get("message", "Unknown error")
             print(f"OpenRouter API error: {error_msg}")
             return f"I apologize, but I encountered an error: {error_msg}"
@@ -182,8 +197,4 @@ async def chat(request: ChatRequest):
         print(f"Error in chat endpoint: {str(e)}")
         import traceback
         print(f"Traceback: {traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+        raise HTTPException(status_code=500, detail=str(e)) 
