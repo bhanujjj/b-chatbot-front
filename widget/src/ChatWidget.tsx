@@ -165,7 +165,6 @@ export const ChatWidget = () => {
   }, [messages]);
 
   React.useEffect(() => {
-    // Cleanup function to abort any pending requests when component unmounts
     return () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -177,7 +176,6 @@ export const ChatWidget = () => {
     e.preventDefault();
     if (!inputText.trim() || isLoading) return;
 
-    // Abort any existing request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -188,7 +186,6 @@ export const ChatWidget = () => {
     setIsLoading(true);
 
     try {
-      // Create new AbortController for this request
       abortControllerRef.current = new AbortController();
       const timeoutId = setTimeout(() => {
         if (abortControllerRef.current) {
@@ -210,11 +207,17 @@ export const ChatWidget = () => {
       }
 
       const data = await response.json();
-      if (!data.response) {
-        throw new Error('Invalid response from server');
+      
+      if (!data || typeof data !== 'object') {
+        throw new Error('Invalid response format from server');
       }
 
-      const botMessage: Message = { text: data.response, isUser: false };
+      if (!('response' in data) || typeof data.response !== 'string' || !data.response.trim()) {
+        console.error('Invalid server response:', data);
+        throw new Error('Invalid or empty response from server');
+      }
+
+      const botMessage: Message = { text: data.response.trim(), isUser: false };
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
       console.error('Error:', error);
@@ -225,6 +228,8 @@ export const ChatWidget = () => {
           errorMessage = "Sorry, the request timed out. Please try again.";
         } else if (error.message.includes('status: 429')) {
           errorMessage = "Too many requests. Please wait a moment before trying again.";
+        } else if (error.message.includes('Invalid response') || error.message.includes('Invalid or empty response')) {
+          errorMessage = "Sorry, received an invalid response. Please try again.";
         }
       }
 
