@@ -2,10 +2,10 @@
   "name": "beauty-chatbot-widget",
   "version": "1.0.0",
   "description": "Simple chat widget for beauty chatbot",
-  "main": "dist/widget.js",
+  "main": "dist/beautychat-widget.js",
   "scripts": {
     "build": "webpack --mode production",
-    "vercel-build": "npm install && npm run build && cp dist/widget.js ../client/public/beautychat-widget.js",
+    "vercel-build": "npm install && npm run build",
     "dev": "webpack serve --mode development --port 3001"
   },
   "dependencies": {
@@ -15,10 +15,10 @@
     "styled-components": "^6.1.19"
   },
   "devDependencies": {
-    "@babel/core": "^7.23.0",
-    "@babel/preset-env": "^7.22.15",
-    "@babel/preset-react": "^7.22.15",
-    "@babel/preset-typescript": "^7.23.0",
+    "@babel/core": "^7.27.4",
+    "@babel/preset-env": "^7.27.2",
+    "@babel/preset-react": "^7.27.1",
+    "@babel/preset-typescript": "^7.27.1",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "babel-loader": "^9.1.3",

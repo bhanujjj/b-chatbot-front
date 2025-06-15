@@ -7,7 +7,7 @@
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/server/index.js" },
-    { "src": "/beautychat-widget.js", "dest": "/client/build/beautychat-widget.js", "headers": { 
+    { "src": "/beautychat-widget.js", "dest": "/widget/dist/beautychat-widget.js", "headers": { 
       "Content-Type": "application/javascript",
       "Cache-Control": "no-cache",
       "Access-Control-Allow-Origin": "*",

@@ -4,7 +4,7 @@ module.exports = {
   entry: './src/index.tsx',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'widget.js',
+    filename: 'beautychat-widget.js',
     library: 'BeautyChatWidget',
     libraryTarget: 'umd',
     globalObject: 'this',
