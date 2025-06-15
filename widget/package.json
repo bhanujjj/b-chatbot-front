@@ -5,7 +5,7 @@
   "main": "dist/widget.js",
   "scripts": {
     "build": "webpack --mode production",
-    "vercel-build": "npm install && npm run build",
+    "vercel-build": "npm install && npm run build && cp dist/widget.js ../client/public/beautychat-widget.js",
     "dev": "webpack serve --mode development --port 3001"
   },
   "dependencies": {

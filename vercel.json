@@ -7,7 +7,12 @@
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/server/index.js" },
-    { "src": "/beautychat-widget.js", "dest": "/widget/dist/widget.js", "headers": { "Content-Type": "application/javascript" } },
+    { "src": "/beautychat-widget.js", "dest": "/client/build/beautychat-widget.js", "headers": { 
+      "Content-Type": "application/javascript",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Accept"
+    }},
     { "src": "/widget/(.*)", "dest": "/widget/$1" },
     { "src": "/(.*)", "dest": "/client/$1" }
   ]
