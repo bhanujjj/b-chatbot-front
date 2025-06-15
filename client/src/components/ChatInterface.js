@@ -33,7 +33,7 @@ const actions = [
   { icon: <PhotoCameraIcon />, name: 'Analyze Skin', key: 'analysis' },
 ];
 
-const ChatInterface = () => {
+const ChatInterface = ({ minimalMode = false }) => {
   const [messages, setMessages] = useState([{
     role: 'assistant',
     content: 'Hello! I\'m your beauty product advisor. I can help you find the perfect products for your skin type and concerns. What would you like to know?'
@@ -137,17 +137,23 @@ const ChatInterface = () => {
   };
 
   return (
-    <Container maxWidth="md">
-      <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', py: 3 }}>
+    <Container maxWidth={minimalMode ? false : "md"} sx={{ p: minimalMode ? 0 : 3 }}>
+      <Box sx={{ 
+        height: '100vh', 
+        display: 'flex', 
+        flexDirection: 'column',
+        py: minimalMode ? 0 : 3,
+      }}>
         <Paper 
-          elevation={3} 
+          elevation={minimalMode ? 0 : 3} 
           sx={{ 
             flex: 1, 
             mb: 2, 
             p: 2, 
             overflowY: 'auto',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            borderRadius: minimalMode ? 0 : 1
           }}
         >
           {messages.map((message, index) => (
@@ -175,12 +181,13 @@ const ChatInterface = () => {
                           product={product}
                           onCompareToggle={handleCompareToggle}
                           isCompared={compareProducts.some(p => p.name === product.name)}
+                          minimalMode={minimalMode}
                         />
                       </Grid>
                     ))}
                   </Grid>
                 )}
-                {message.analysis && (
+                {!minimalMode && message.analysis && (
                   <Box sx={{ mt: 2 }}>
                     <Typography variant="subtitle1">Analysis Results:</Typography>
                     {Object.entries(message.analysis).map(([key, value]) => (
@@ -221,7 +228,7 @@ const ChatInterface = () => {
           <div ref={messagesEndRef} />
         </Paper>
 
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: 'flex', gap: 1, px: minimalMode ? 2 : 0, pb: minimalMode ? 2 : 0 }}>
           <TextField
             fullWidth
             variant="outlined"
@@ -239,56 +246,60 @@ const ChatInterface = () => {
           </Button>
         </Box>
 
-        <SpeedDial
-          ariaLabel="SpeedDial"
-          sx={{ position: 'fixed', bottom: 16, right: 16 }}
-          icon={<SpeedDialIcon />}
-        >
-          {actions.map((action) => (
-            <SpeedDialAction
-              key={action.key}
-              icon={action.icon}
-              tooltipTitle={action.name}
-              onClick={() => handleSpeedDialAction(action.key)}
+        {!minimalMode && (
+          <>
+            <SpeedDial
+              ariaLabel="SpeedDial"
+              sx={{ position: 'fixed', bottom: 16, right: 16 }}
+              icon={<SpeedDialIcon />}
+            >
+              {actions.map((action) => (
+                <SpeedDialAction
+                  key={action.key}
+                  icon={action.icon}
+                  tooltipTitle={action.name}
+                  onClick={() => handleSpeedDialAction(action.key)}
+                />
+              ))}
+            </SpeedDial>
+
+            {compareProducts.length > 0 && (
+              <Fab
+                color="primary"
+                sx={{ position: 'fixed', bottom: 16, right: 96 }}
+                onClick={() => setCompareModalOpen(true)}
+              >
+                <CompareIcon />
+              </Fab>
+            )}
+
+            <CompareModal
+              open={compareModalOpen}
+              onClose={() => setCompareModalOpen(false)}
+              products={compareProducts}
             />
-          ))}
-        </SpeedDial>
 
-        {compareProducts.length > 0 && (
-          <Fab
-            color="primary"
-            sx={{ position: 'fixed', bottom: 16, right: 96 }}
-            onClick={() => setCompareModalOpen(true)}
-          >
-            <CompareIcon />
-          </Fab>
+            <SkincareQuestionnaire
+              open={questionnaireOpen}
+              onClose={() => setQuestionnaireOpen(false)}
+              onComplete={handleQuestionnaireComplete}
+            />
+
+            <SkincareRoutine
+              open={routineOpen}
+              onClose={() => setRoutineOpen(false)}
+              routine={skinRoutine}
+              onCompareToggle={handleCompareToggle}
+              comparedProducts={compareProducts}
+            />
+
+            <SkinAnalysis
+              open={analysisOpen}
+              onClose={() => setAnalysisOpen(false)}
+              onAnalysisComplete={handleAnalysisComplete}
+            />
+          </>
         )}
-
-        <CompareModal
-          open={compareModalOpen}
-          onClose={() => setCompareModalOpen(false)}
-          products={compareProducts}
-        />
-
-        <SkincareQuestionnaire
-          open={questionnaireOpen}
-          onClose={() => setQuestionnaireOpen(false)}
-          onComplete={handleQuestionnaireComplete}
-        />
-
-        <SkincareRoutine
-          open={routineOpen}
-          onClose={() => setRoutineOpen(false)}
-          routine={skinRoutine}
-          onCompareToggle={handleCompareToggle}
-          comparedProducts={compareProducts}
-        />
-
-        <SkinAnalysis
-          open={analysisOpen}
-          onClose={() => setAnalysisOpen(false)}
-          onAnalysisComplete={handleAnalysisComplete}
-        />
       </Box>
     </Container>
   );

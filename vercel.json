@@ -2,10 +2,13 @@
   "version": 2,
   "builds": [
     { "src": "client/package.json", "use": "@vercel/static-build", "config": { "distDir": "build" } },
+    { "src": "widget/package.json", "use": "@vercel/static-build", "config": { "distDir": "dist" } },
     { "src": "server/index.js", "use": "@vercel/node" }
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/server/index.js" },
+    { "src": "/widget/(.*)", "dest": "/widget/$1" },
+    { "src": "/beautychat-widget.js", "dest": "/widget/dist/widget.js" },
     { "src": "/(.*)", "dest": "/client/$1" }
   ]
 } 

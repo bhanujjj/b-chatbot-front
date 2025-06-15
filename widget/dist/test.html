@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Beauty Chat Widget Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        #debug {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+        }
+        .error {
+            color: red;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Beauty Chat Widget Test Page</h1>
+    <p>The chat widget should appear in the bottom-right corner.</p>
+    <div id="debug">
+        <h3>Debug Information:</h3>
+        <pre id="debugInfo"></pre>
+    </div>
+
+    <script>
+        // Debug helper
+        function updateDebug(message) {
+            const debugInfo = document.getElementById('debugInfo');
+            const timestamp = new Date().toISOString();
+            debugInfo.textContent += `${timestamp}: ${message}\n`;
+            console.log(message);
+        }
+
+        // Error handling
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            updateDebug(`Error: ${msg}\nURL: ${url}\nLine: ${lineNo}`);
+            return false;
+        };
+
+        updateDebug('Page loaded, waiting for scripts...');
+    </script>
+
+    <!-- Load React -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+
+    <!-- Load our widget -->
+    <script src="widget.js"></script>
+
+    <script>
+        // Wait for everything to load
+        window.addEventListener('load', function() {
+            updateDebug('All scripts loaded, checking for widget...');
+            
+            // Small delay to ensure everything is initialized
+            setTimeout(function() {
+                if (window.BeautyChatWidget && typeof window.BeautyChatWidget.init === 'function') {
+                    updateDebug('Widget found, initializing...');
+                    try {
+                        window.BeautyChatWidget.init('beauty-chat-widget');
+                        updateDebug('Widget initialized successfully');
+                    } catch (e) {
+                        updateDebug('Error initializing widget: ' + e.message);
+                        console.error(e);
+                    }
+                } else {
+                    const error = 'Widget not found in window.BeautyChatWidget';
+                    updateDebug(error);
+                    console.error(error);
+                }
+            }, 500); // 500ms delay
+        });
+    </script>
+</body>
+</html> 
