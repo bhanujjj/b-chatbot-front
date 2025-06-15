@@ -21,8 +21,12 @@ function init(containerId: string = 'beauty-chat-widget') {
   );
 }
 
-// Export the init function
-export { init };
+// Export the widget module
+const BeautyChatWidget = {
+  init
+};
+
+export default BeautyChatWidget;
 
 // Also expose it on window for direct script tag usage
 declare global {

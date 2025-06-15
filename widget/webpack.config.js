@@ -5,10 +5,12 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'beautychat-widget.js',
-    library: 'BeautyChatWidget',
-    libraryTarget: 'umd',
-    globalObject: 'this',
-    publicPath: '/'
+    library: {
+      name: 'BeautyChatWidget',
+      type: 'umd',
+      export: 'default'
+    },
+    globalObject: 'this'
   },
   module: {
     rules: [
@@ -39,9 +41,24 @@ module.exports = {
     }
   },
   externals: {
-    react: 'React',
-    'react-dom': 'ReactDOM',
-    'styled-components': 'styled'
+    react: {
+      commonjs: 'react',
+      commonjs2: 'react',
+      amd: 'React',
+      root: 'React'
+    },
+    'react-dom': {
+      commonjs: 'react-dom',
+      commonjs2: 'react-dom',
+      amd: 'ReactDOM',
+      root: 'ReactDOM'
+    },
+    'styled-components': {
+      commonjs: 'styled-components',
+      commonjs2: 'styled-components',
+      amd: 'styled',
+      root: 'styled'
+    }
   },
   devServer: {
     static: {
