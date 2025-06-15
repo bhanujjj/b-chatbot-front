@@ -5,12 +5,11 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'beautychat-widget.js',
-    library: {
-      name: 'BeautyChatWidget',
-      type: 'umd',
-      export: 'default'
-    },
-    globalObject: 'this'
+    library: 'BeautyChatWidget',
+    libraryTarget: 'umd',
+    libraryExport: 'default',
+    globalObject: 'this',
+    umdNamedDefine: true
   },
   module: {
     rules: [

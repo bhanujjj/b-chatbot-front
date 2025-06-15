@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beauty Chat Widget Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Beauty Chat Widget Test</h1>
+    <p>The chat widget should appear in the bottom right corner.</p>
+
+    <!-- Load dependencies first -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/styled-components@6/dist/styled-components.min.js"></script>
+
+    <!-- Load and initialize the widget -->
+    <script src="https://b-chatbot-frontendd.vercel.app/beautychat-widget.js"></script>
+    <script>
+        function initWidget() {
+            if (typeof BeautyChatWidget === 'undefined') {
+                console.error('BeautyChatWidget is not loaded yet');
+                return;
+            }
+            try {
+                BeautyChatWidget.init();
+                console.log('Widget initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize widget:', error);
+            }
+        }
+
+        // Try to initialize immediately if already loaded
+        if (document.readyState === 'complete') {
+            initWidget();
+        } else {
+            // Otherwise wait for everything to load
+            window.addEventListener('load', initWidget);
+        }
+    </script>
+</body>
+</html> 
