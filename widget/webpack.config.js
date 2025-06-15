@@ -7,7 +7,8 @@ module.exports = {
     filename: 'widget.js',
     library: 'BeautyChatWidget',
     libraryTarget: 'umd',
-    globalObject: 'this'
+    globalObject: 'this',
+    publicPath: '/'
   },
   module: {
     rules: [
@@ -37,6 +38,11 @@ module.exports = {
       'styled-components': path.resolve(__dirname, 'node_modules/styled-components')
     }
   },
+  externals: {
+    react: 'React',
+    'react-dom': 'ReactDOM',
+    'styled-components': 'styled'
+  },
   devServer: {
     static: {
       directory: path.join(__dirname, 'dist'),
@@ -44,6 +50,11 @@ module.exports = {
     },
     port: 3001,
     hot: true,
-    open: '/test.html'
+    open: '/test.html',
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+      "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization"
+    }
   }
 }; 

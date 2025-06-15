@@ -7,8 +7,8 @@
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/server/index.js" },
+    { "src": "/beautychat-widget.js", "dest": "/widget/dist/widget.js", "headers": { "Content-Type": "application/javascript" } },
     { "src": "/widget/(.*)", "dest": "/widget/$1" },
-    { "src": "/beautychat-widget.js", "dest": "/widget/dist/widget.js" },
     { "src": "/(.*)", "dest": "/client/$1" }
   ]
 } 
