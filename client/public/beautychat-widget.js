@@ -1,6 +1,6 @@
 (function () {
   const iframe = document.createElement("iframe");
-  iframe.src = "https://b-chatbot-frontendd-mc9vxdnny-bbs-projects-b3fa75cb.vercel.app/widget";
+  iframe.src = "https://b-chatbot-frontendd.vercel.app/widget";
   iframe.style.position = "fixed";
   iframe.style.bottom = "20px";
   iframe.style.right = "20px";

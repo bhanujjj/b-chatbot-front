@@ -20,7 +20,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "cd ../widget && npm install && npm run build && cd ../client && react-scripts build && cp ../widget/dist/widget.js build/beautychat-widget.js",
+    "prebuild": "cd ../widget && npm install && npm run build",
+    "build": "react-scripts build && cp ../widget/dist/widget.js build/beautychat-widget.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
