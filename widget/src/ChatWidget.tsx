@@ -156,6 +156,7 @@ export const ChatWidget = () => {
   const [inputText, setInputText] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  const abortControllerRef = React.useRef<AbortController | null>(null);
 
   React.useEffect(() => {
     if (messagesEndRef.current) {
@@ -163,9 +164,23 @@ export const ChatWidget = () => {
     }
   }, [messages]);
 
+  React.useEffect(() => {
+    // Cleanup function to abort any pending requests when component unmounts
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!inputText.trim() || isLoading) return;
+
+    // Abort any existing request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
 
     const userMessage: Message = { text: inputText, isUser: true };
     setMessages(prev => [...prev, userMessage]);
@@ -173,14 +188,19 @@ export const ChatWidget = () => {
     setIsLoading(true);
 
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      // Create new AbortController for this request
+      abortControllerRef.current = new AbortController();
+      const timeoutId = setTimeout(() => {
+        if (abortControllerRef.current) {
+          abortControllerRef.current.abort();
+        }
+      }, 30000);
 
       const response = await fetch('https://beauty-chatbot-ai-p1fp.onrender.com/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: inputText }),
-        signal: controller.signal
+        signal: abortControllerRef.current.signal
       });
       
       clearTimeout(timeoutId);
@@ -190,20 +210,28 @@ export const ChatWidget = () => {
       }
 
       const data = await response.json();
+      if (!data.response) {
+        throw new Error('Invalid response from server');
+      }
+
       const botMessage: Message = { text: data.response, isUser: false };
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
       console.error('Error:', error);
-      const errorMessage: Message = {
-        text: error instanceof Error && error.name === 'AbortError' 
-          ? "Sorry, the request timed out. Please try again."
-          : "Sorry, there was an error processing your request. Please try again later.",
-        isUser: false,
-        isError: true
-      };
-      setMessages(prev => [...prev, errorMessage]);
+      let errorMessage = "Sorry, there was an error processing your request. Please try again later.";
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = "Sorry, the request timed out. Please try again.";
+        } else if (error.message.includes('status: 429')) {
+          errorMessage = "Too many requests. Please wait a moment before trying again.";
+        }
+      }
+
+      setMessages(prev => [...prev, { text: errorMessage, isUser: false, isError: true }]);
     } finally {
       setIsLoading(false);
+      abortControllerRef.current = null;
     }
   };
 

@@ -11,11 +11,19 @@
             margin: 0 auto;
             padding: 20px;
         }
+        #debug {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
     <h1>Beauty Chat Widget Test</h1>
     <p>The chat widget should appear in the bottom right corner.</p>
+    <div id="debug">Loading status will appear here...</div>
 
     <!-- Load dependencies first -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -23,18 +31,45 @@
     <script src="https://unpkg.com/styled-components@6/dist/styled-components.min.js"></script>
 
     <!-- Load and initialize the widget -->
-    <script src="https://b-chatbot-frontendd.vercel.app/beautychat-widget.js"></script>
+    <script src="./dist/beautychat-widget.js"></script>
     <script>
+        const debugDiv = document.getElementById('debug');
+        
+        function log(message) {
+            console.log(message);
+            debugDiv.innerHTML += `<div>${message}</div>`;
+        }
+
         function initWidget() {
-            if (typeof BeautyChatWidget === 'undefined') {
-                console.error('BeautyChatWidget is not loaded yet');
+            log('Attempting to initialize widget...');
+            
+            // Check if dependencies are loaded
+            if (typeof React === 'undefined') {
+                log('Error: React is not loaded');
                 return;
             }
+            if (typeof ReactDOM === 'undefined') {
+                log('Error: ReactDOM is not loaded');
+                return;
+            }
+            if (typeof styled === 'undefined') {
+                log('Error: styled-components is not loaded');
+                return;
+            }
+            
+            // Check if widget is loaded
+            if (typeof BeautyChatWidget === 'undefined') {
+                log('Error: BeautyChatWidget is not loaded yet');
+                return;
+            }
+
             try {
+                log('All dependencies loaded, initializing widget...');
                 BeautyChatWidget.init();
-                console.log('Widget initialized successfully');
+                log('Widget initialized successfully');
             } catch (error) {
-                console.error('Failed to initialize widget:', error);
+                log(`Failed to initialize widget: ${error.message}`);
+                console.error('Widget initialization error:', error);
             }
         }
 
